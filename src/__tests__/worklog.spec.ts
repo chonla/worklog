@@ -23,10 +23,10 @@ describe('Worklog service', () => {
         const mockHomedir = 'ok';
 
         spies.push(jest.spyOn(os, 'homedir').mockReturnValue(mockHomedir));
-        spies.push(jest.spyOn(fs, 'existsSync').mockReturnValue(false));
+        spies.push(jest.spyOn(fs, 'existsSync').mockReturnValueOnce(false));
         spies.push(jest.spyOn(fs, 'mkdirSync'));
-        spies.push(jest.spyOn(logger, 'log').mockImplementation(() => {}));
-        
+        spies.push(jest.spyOn(logger, 'log').mockImplementation(() => { }));
+
         service.init();
 
         expect(os.homedir).toHaveBeenCalled();
@@ -40,8 +40,8 @@ describe('Worklog service', () => {
         spies.push(jest.spyOn(os, 'homedir').mockReturnValue(mockHomedir));
         spies.push(jest.spyOn(fs, 'existsSync').mockReturnValue(true));
         spies.push(jest.spyOn(fs, 'mkdirSync'));
-        spies.push(jest.spyOn(logger, 'log').mockImplementation(() => {}));
-        
+        spies.push(jest.spyOn(logger, 'log').mockImplementation(() => { }));
+
         service.init();
 
         expect(os.homedir).toHaveBeenCalled();
