@@ -1,0 +1,16 @@
+{
+  "name": "worklog",
+  "version": "1.0.0",
+  "description": "ODDS worklog book",
+  "main": "src/index.ts",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^14.0.24",
+    "typescript": "^3.9.7"
+  },
+  "dependencies": {}
+}
