@@ -24,9 +24,9 @@ yargs
                 type: 'boolean',
                 default: false
             })
-            .option('month', {
-                alias: 'm',
-                description: 'Month in YYYY-MM format. Month "now" and "prev" are also supported.',
+            .option('when', {
+                alias: 'w',
+                description: 'Time (month) in YYYY-MM format. "now" and "prev" are also supported.',
                 type: 'string',
                 default: 'now'
             })
@@ -36,9 +36,9 @@ yargs
     })
     .command(['summarize [options]', 'report'], 'Summarize worklog report for given month.', (yargs) => {
         yargs
-            .option('month', {
+            .option('when', {
                 alias: 'm',
-                description: 'Month in YYYY-MM format. Month "now" and "prev" are also supported.',
+                description: 'Time (month) in YYYY-MM format. "now" and "prev" are also supported.',
                 type: 'string',
                 default: 'now'
             })
@@ -49,7 +49,7 @@ yargs
         yargs
             .option('when', {
                 alias: '-w',
-                description: 'Date in YYYY-MM-DD format. Date "today" and "yesterday" are also supported.',
+                description: 'Time (date) in YYYY-MM-DD format. "today" and "yesterday" are also supported.',
                 type: 'string',
                 default: 'today'
             })
