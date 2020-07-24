@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import * as fs from "fs";
 
-class Migration {
+class MigrationService {
     private readonly cwd;
     private scripts: string[];
     private updateToVersion: number;
@@ -72,4 +72,4 @@ class Migration {
     }
 }
 
-export { Migration }
+export { MigrationService }
