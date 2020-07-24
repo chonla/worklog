@@ -65,7 +65,8 @@ class Worklog {
 
         const sites = this.siteService.list();
         sites.forEach(site => {
-            logger.log(site.name);
+            const defaultMark = site.is_default?'*':' ';
+            logger.log(`${defaultMark} ${site.name}`);
         });
     }
 

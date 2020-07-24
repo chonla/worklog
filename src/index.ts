@@ -18,8 +18,10 @@ yargs
             case 'add':
                 const siteName = argv.arguments[0];
                 worklog.addSite(siteName);
+                break;
             case 'prune':
                 worklog.pruneSites();
+                break;
         }
     })
     .demandCommand()

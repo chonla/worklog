@@ -36,7 +36,9 @@ class SiteService {
     }
 
     prune() {
-        // const sites = this.list();
+        const siteToBePrunedCount = this.db.prepare('SELECT COUNT(*) AS count FROM sites WHERE sites.name NOT IN (SELECT DISTINCT site_name FROM visits)').get();
+        this.db.prepare('DELETE FROM sites WHERE sites.name NOT IN (SELECT DISTINCT site_name FROM visits)').run();
+        logger.log(`${siteToBePrunedCount.count} site(s) have been pruned.`);
     }
 }
 
