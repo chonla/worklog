@@ -58,11 +58,17 @@ yargs
                 description: 'Half day visit.',
                 type: 'boolean',
                 default: false
+            })
+            .option('amend', {
+                alias: '-a',
+                description: 'Modify previous visit if exists.',
+                type: 'boolean',
+                default: false
             });
     }, (argv) => {
         const visitDate = argv.when;
         const visitProportion = argv.half?0.5:1.0;
-        worklog.checkin(argv.site, visitDate, visitProportion);
+        worklog.checkin(argv.site, visitDate, visitProportion, argv.amend);
     })
     .command(['site <command> [arguments...]'], 'Site manipulation', (yargs) => {
         yargs

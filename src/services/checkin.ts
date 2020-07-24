@@ -8,7 +8,12 @@ class CheckinService {
 
     }
 
-    in(site, visitDate, timeProportion) {
+    visited(site, visitDate): boolean {
+        const visit = this.db.prepare('SELECT COUNT(*) AS count FROM visits WHERE site_name = ? AND visit_date = ?').get(site, visitDate);
+        return visit.count > 0;
+    }
+
+    in(site, visitDate, timeProportion, amend) {
         if (!site) {
             const siteService = new SiteService(this.db);
             const defaultSite = siteService.getDefault();
@@ -21,9 +26,21 @@ class CheckinService {
             site = defaultSite.name;
         }
 
+        if (this.visited(site, visitDate) && !amend) {
+            logger.log(`You have visited ${site} on ${visitDate}. Use option \`--amend\` to modify.`);
+            return false;
+        }
+
         const today = moment().local().format('YYYY-MM');
         const visitMonth = moment(visitDate).format('YYYY-MM');
-        this.db.prepare('INSERT INTO visits (site_name, visit_date, visit_month, time_proportion) VALUES (?, ?, ?, ?)').run(site, visitDate, visitMonth, timeProportion);
+
+        const tx = this.db.transaction(() => {
+            if (amend) {
+                this.db.prepare('DELETE FROM visits WHERE site_name = ? AND visit_date = ?').run(site, visitDate);
+            }
+            this.db.prepare('INSERT INTO visits (site_name, visit_date, visit_month, time_proportion) VALUES (?, ?, ?, ?)').run(site, visitDate, visitMonth, timeProportion);
+        });
+        tx();
 
         if (visitDate === today) {
             logger.log(`Check-in to ${site} successfully.`);

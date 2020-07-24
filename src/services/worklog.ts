@@ -111,14 +111,14 @@ class Worklog {
         this.siteService.setDefault(site);
     }
 
-    checkin(site, visitDate, timeProportion) {
+    checkin(site, visitDate, timeProportion, amend) {
         if (!this.tryConnect()) {
             return;
         }
 
         visitDate = this.dateResolverService.resolve(visitDate);
 
-        this.checkinService.in(site, visitDate, timeProportion);
+        this.checkinService.in(site, visitDate, timeProportion, amend);
     }
 
     log(logMonth) {
