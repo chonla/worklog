@@ -8,10 +8,15 @@ CREATE TABLE IF NOT EXISTS sites (
 CREATE TABLE IF NOT EXISTS visits (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     visit_date CHAR(10),
+    visit_month CHAR(7),
     site_name VARCHAR(50),
     time_proportion NUMERIC
 );
 
 CREATE INDEX IF NOT EXISTS site_visit_idx ON visits (
     visit_date, site_name
+);
+
+CREATE INDEX IF NOT EXISTS monthly_visit_idx ON visits (
+    visit_month
 );

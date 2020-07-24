@@ -6,6 +6,7 @@ import { MigrationService } from './migration';
 import { SiteService } from './site';
 import { CheckinService } from './checkin';
 import { DateResolverService } from './date-resolver';
+import { MonthResolverService } from './month-resolver';
 
 class Worklog {
     private db: Database.Database;
@@ -14,6 +15,7 @@ class Worklog {
     private siteService: SiteService;
     private checkinService: CheckinService;
     private dateResolverService: DateResolverService;
+    private monthResolverService: MonthResolverService;
 
     constructor() {
         const homedir = os.homedir();
@@ -27,6 +29,7 @@ class Worklog {
             this.siteService = new SiteService(this.db);
             this.checkinService = new CheckinService(this.db);
             this.dateResolverService = new DateResolverService();
+            this.monthResolverService = new MonthResolverService();
             return true;
         }
         logger.log('Log book has not been found. Use `worklog init` to initialize log book.');
@@ -108,14 +111,33 @@ class Worklog {
         this.siteService.setDefault(site);
     }
 
-    checkin(site, visit_date, time_proportion) {
+    checkin(site, visitDate, timeProportion) {
         if (!this.tryConnect()) {
             return;
         }
 
-        visit_date = this.dateResolverService.resolve(visit_date);
+        visitDate = this.dateResolverService.resolve(visitDate);
 
-        this.checkinService.in(site, visit_date, time_proportion);
+        this.checkinService.in(site, visitDate, timeProportion);
+    }
+
+    log(logMonth) {
+        if (!this.tryConnect()) {
+            return;
+        }
+
+        logMonth = this.monthResolverService.resolve(logMonth);
+
+        const visits = this.checkinService.list(logMonth);
+
+        if (visits.length > 0) {
+            visits.forEach(visit => {
+                const timeSpent = (visit.time_proportion == 1.0) ? 'FULL' : 'HALF';
+                logger.log(`${visit.visit_date} (${timeSpent}): ${visit.site_name}`);
+            });
+        } else {
+            logger.log(`You have not visited any site on ${logMonth}.`);
+        }
     }
 }
 

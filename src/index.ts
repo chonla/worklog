@@ -12,30 +12,43 @@ yargs
     })
     .command(['log [options]'], 'Show check-in detail for given month.', (yargs) => {
         yargs
+            .option('now', {
+                alias: 'n',
+                description: 'Current month, overriding `--month` and `--prev` option.',
+                type: 'boolean',
+                default: false
+            })
+            .option('prev', {
+                alias: 'p',
+                description: 'Previous month, overriding `--month` option.',
+                type: 'boolean',
+                default: false
+            })
             .option('month', {
                 alias: 'm',
-                description: 'Month in YYYY-MM format. Month "current" and "last" are also supported.',
+                description: 'Month in YYYY-MM format. Month "now" and "prev" are also supported.',
                 type: 'string',
-                default: 'current'
+                default: 'now'
             })
-    }, () => {
-
+    }, (argv) => {
+        const logMonth = argv.now?'now':(argv.prev?'prev':argv.month);
+        worklog.log(logMonth);
     })
     .command(['summarize [options]', 'report'], 'Summarize worklog report for given month.', (yargs) => {
         yargs
             .option('month', {
                 alias: 'm',
-                description: 'Month in YYYY-MM format. Month "current" and "last" are also supported.',
+                description: 'Month in YYYY-MM format. Month "now" and "prev" are also supported.',
                 type: 'string',
-                default: 'current'
+                default: 'now'
             })
     }, () => {
-
+        
     })
     .command(['checkin [site] [options]', 'in'], 'Check-in manipulation.', (yargs) => {
         yargs
-            .option('date', {
-                alias: 'd',
+            .option('when', {
+                alias: '-w',
                 description: 'Date in YYYY-MM-DD format. Date "today" and "yesterday" are also supported.',
                 type: 'string',
                 default: 'today'
@@ -47,15 +60,9 @@ yargs
                 default: false
             });
     }, (argv) => {
-        let visit_date = 'today';
-        if (argv.date) {
-            visit_date = String(argv.date);
-        }
-        let visit_proportion = 1.0;
-        if (argv.half) {
-            visit_proportion = 0.5;
-        }
-        worklog.checkin(argv.site, visit_date, visit_proportion);
+        const visitDate = argv.when;
+        const visitProportion = argv.half?0.5:1.0;
+        worklog.checkin(argv.site, visitDate, visitProportion);
     })
     .command(['site <command> [arguments...]'], 'Site manipulation', (yargs) => {
         yargs
