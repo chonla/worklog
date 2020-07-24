@@ -31,6 +31,17 @@ class SiteService {
         logger.log(`Site ${site} has been added.`);
     }
 
+    remove(site) {
+        if (!this.has(site)) {
+            logger.log(`Site ${site} does not exist in log book.`);
+            return false;
+        }
+
+        this.db.prepare('DELETE FROM sites WHERE name = ?').run(site);
+
+        logger.log(`Site ${site} has been removed.`);
+    }
+
     list() {
         return this.db.prepare('SELECT * FROM sites ORDER BY name').all();
     }

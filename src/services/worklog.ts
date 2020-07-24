@@ -58,7 +58,7 @@ class Worklog {
         this.init();
     }
 
-    siteList() {
+    listSites() {
         if (!this.tryConnect()) {
             return;
         }
@@ -76,6 +76,14 @@ class Worklog {
         }
 
         this.siteService.add(site);
+    }
+
+    removeSite(site) {
+        if (!this.tryConnect()) {
+            return;
+        }
+
+        this.siteService.remove(site);
     }
 
     pruneSites() {
