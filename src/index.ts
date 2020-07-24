@@ -10,8 +10,33 @@ yargs
     .command(['reinit'], 'Reinitialize worklog.', {}, (argv) => {
         worklog.reinit();
     })
-    .command(['checkin [arguments...]', 'in'], 'Check-in manipulation.', {}, (argv) => {
-        console.log('check in');
+    .command(['summarize <month>', 'report'], 'Summarize worklog report', {}, () => {
+
+    })
+    .command(['checkin [site] [options]', 'in'], 'Check-in manipulation.', (yargs) => {
+        yargs
+            .option('date', {
+                alias: 'd',
+                description: 'Date in YYYY-MM-DD format. Date "today" and "yesterday" are also supported.',
+                type: 'string',
+                default: 'today'
+            })
+            .option('half', {
+                alias: 'h',
+                description: 'Half day visit.',
+                type: 'boolean',
+                default: false
+            });
+    }, (argv) => {
+        let visit_date = 'today';
+        if (argv.date) {
+            visit_date = String(argv.date);
+        }
+        let visit_proportion = 1.0;
+        if (argv.half) {
+            visit_proportion = 0.5;
+        }
+        worklog.checkin(argv.site, visit_date, visit_proportion);
     })
     .command(['site <command> [arguments...]'], 'Site manipulation', (yargs) => {
         yargs

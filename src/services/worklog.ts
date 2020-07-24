@@ -4,12 +4,16 @@ import { logger } from './logger';
 import Database from 'better-sqlite3';
 import { MigrationService } from './migration';
 import { SiteService } from './site';
+import { CheckinService } from './checkin';
+import { DateResolverService } from './date-resolver';
 
 class Worklog {
     private db: Database.Database;
     private worklogDir: string;
     private dbFile: string;
     private siteService: SiteService;
+    private checkinService: CheckinService;
+    private dateResolverService: DateResolverService;
 
     constructor() {
         const homedir = os.homedir();
@@ -21,6 +25,8 @@ class Worklog {
         if (fs.existsSync(this.dbFile)) {
             this.db = new Database(this.dbFile);
             this.siteService = new SiteService(this.db);
+            this.checkinService = new CheckinService(this.db);
+            this.dateResolverService = new DateResolverService();
             return true;
         }
         logger.log('Log book has not been found. Use `worklog init` to initialize log book.');
@@ -65,7 +71,7 @@ class Worklog {
 
         const sites = this.siteService.list();
         sites.forEach(site => {
-            const defaultMark = site.is_default?'*':' ';
+            const defaultMark = site.is_default ? '*' : ' ';
             logger.log(`${defaultMark} ${site.name}`);
         });
     }
@@ -100,6 +106,16 @@ class Worklog {
         }
 
         this.siteService.setDefault(site);
+    }
+
+    checkin(site, visit_date, time_proportion) {
+        if (!this.tryConnect()) {
+            return;
+        }
+
+        visit_date = this.dateResolverService.resolve(visit_date);
+
+        this.checkinService.in(site, visit_date, time_proportion);
     }
 }
 

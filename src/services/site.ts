@@ -28,7 +28,11 @@ class SiteService {
         }
         this.db.prepare('INSERT INTO sites (name, is_default) VALUES (?, ?)').run(site, isDefaultSite);
 
-        logger.log(`Site ${site} has been added.`);
+        if (isDefaultSite) {
+            logger.log(`Site ${site} has been added and set as a default site.`);
+        } else {
+            logger.log(`Site ${site} has been added.`);
+        }
     }
 
     remove(site) {
