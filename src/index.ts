@@ -10,7 +10,26 @@ yargs
     .command(['reinit'], 'Reinitialize worklog.', {}, (argv) => {
         worklog.reinit();
     })
-    .command(['summarize <month>', 'report'], 'Summarize worklog report', {}, () => {
+    .command(['log [options]'], 'Show check-in detail for given month.', (yargs) => {
+        yargs
+            .option('month', {
+                alias: 'm',
+                description: 'Month in YYYY-MM format. Month "current" and "last" are also supported.',
+                type: 'string',
+                default: 'current'
+            })
+    }, () => {
+
+    })
+    .command(['summarize [options]', 'report'], 'Summarize worklog report for given month.', (yargs) => {
+        yargs
+            .option('month', {
+                alias: 'm',
+                description: 'Month in YYYY-MM format. Month "current" and "last" are also supported.',
+                type: 'string',
+                default: 'current'
+            })
+    }, () => {
 
     })
     .command(['checkin [site] [options]', 'in'], 'Check-in manipulation.', (yargs) => {
