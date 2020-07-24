@@ -7,6 +7,7 @@ import { SiteService } from './site';
 import { CheckinService } from './checkin';
 import { DateResolverService } from './date-resolver';
 import { MonthResolverService } from './month-resolver';
+import moment from 'moment';
 
 class Worklog {
     private db: Database.Database;
@@ -137,6 +138,54 @@ class Worklog {
             });
         } else {
             logger.log(`You have not visited any site on ${logMonth}.`);
+        }
+    }
+
+    report(reportMonth) {
+        if (!this.tryConnect()) {
+            return;
+        }
+
+        reportMonth = this.monthResolverService.resolve(reportMonth);
+        const salaryMonthFrom = moment(`${reportMonth}-26`).subtract(1, 'months').format('YYYY-MM-DD');
+        const salaryMonthTo = moment(`${reportMonth}-25`).format('YYYY-MM-DD');
+
+        const visitsByMonth = this.checkinService.list(reportMonth);
+        const visitsBySalaryMonth = this.checkinService.customList(salaryMonthFrom, salaryMonthTo);
+
+        const reportByMonth = this.generateReport(visitsByMonth);
+        const reportBySalaryMonth = this.generateReport(visitsBySalaryMonth);
+
+        logger.log(`Month: ${reportMonth}`);
+        logger.log(`Total visit(s): ${reportByMonth.total}`);
+
+        Object.keys(reportByMonth.sites).forEach(key => {
+            logger.log(`${key}: ${reportByMonth.sites[key]}`);
+        });
+
+        logger.log('');
+
+        logger.log(`From ${salaryMonthFrom} to ${salaryMonthTo}`);
+        logger.log(`Total visit(s): ${reportBySalaryMonth.total}`);
+
+        Object.keys(reportBySalaryMonth.sites).forEach(key => {
+            logger.log(`${key}: ${reportBySalaryMonth.sites[key]}`);
+        });
+    }
+
+    private generateReport(visits) {
+        const sites = visits.reduce((a, v) => {
+            if (!a.hasOwnProperty(v.site_name)) {
+                a[v.site_name] = 0;
+            }
+            a[v.site_name] += v.time_proportion;
+            return a;
+        }, {});
+        const total = visits.map(v => v.time_proportion).reduce((a, v) => a + v, 0);
+
+        return {
+            total,
+            sites
         }
     }
 }

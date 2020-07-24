@@ -8,12 +8,12 @@ class CheckinService {
 
     }
 
-    visited(site, visitDate): boolean {
+    visited(site: string, visitDate: string): boolean {
         const visit = this.db.prepare('SELECT COUNT(*) AS count FROM visits WHERE site_name = ? AND visit_date = ?').get(site, visitDate);
         return visit.count > 0;
     }
 
-    in(site, visitDate, timeProportion, amend) {
+    in(site: string, visitDate: string, timeProportion: number, amend: boolean) {
         if (!site) {
             const siteService = new SiteService(this.db);
             const defaultSite = siteService.getDefault();
@@ -50,8 +50,12 @@ class CheckinService {
         return true;
     }
 
-    list(logMonth) {
+    list(logMonth: string) {
         return this.db.prepare('SELECT * FROM visits WHERE visit_month = ? ORDER BY visit_date').all(logMonth);
+    }
+
+    customList(fromDate: string, toDate: string) {
+        return this.db.prepare('SELECT * FROM visits WHERE visit_date >= ? AND visit_date <= ? ORDER BY visit_date').all(fromDate, toDate);
     }
 }
 
