@@ -4,39 +4,33 @@ import { Worklog } from './services/worklog';
 const worklog = new Worklog();
 
 yargs
-    .command(['init'], 'Initialize worklog', {}, (argv) => {
+    .command(['init'], 'Initialize worklog.', {}, (argv) => {
         worklog.init();
     })
-    .command(['reinit'], 'Reinitialize worklog', {}, (argv) => {
+    .command(['reinit'], 'Reinitialize worklog.', {}, (argv) => {
         worklog.reinit();
     })
-    .command(['site <command> [arguments...]'], 'Site manipulation', {}, (argv) => {
-        switch (argv.command) {
-            case 'ls':
+    .command(['checkin [arguments...]', 'in'], 'Check-in manipulation.', {}, (argv) => {
+        console.log('check in');
+    })
+    .command(['site <command> [arguments...]'], 'Site manipulation', (yargs) => {
+        yargs
+            .command(['ls'], 'List all sites.', {}, () => {
                 worklog.listSites();
-                break;
-            case 'add':
-                {
-                    const siteName = argv.arguments[0];
-                    worklog.addSite(siteName);
-                }
-                break;
-            case 'rm':
-                {
-                    const siteName = argv.arguments[0];
-                    worklog.removeSite(siteName);
-                }
-                break;
-            case 'default':
-                {
-                    const siteName = argv.arguments[0];
-                    worklog.setSiteDefault(siteName);
-                }
-                break;
-            case 'prune':
+            })
+            .command(['add <site>'], 'Add a site.', {}, (argv) => {
+                worklog.addSite(argv.site);
+            })
+            .command(['rm <site>'], 'Remove a site.', {}, (argv) => {
+                worklog.removeSite(argv.site);
+            })
+            .command(['default <site>'], 'Set a default site.', {}, (argv) => {
+                worklog.setSiteDefault(argv.site);
+            })
+            .command(['prune'], 'Prune orphan sites.', {}, () => {
                 worklog.pruneSites();
-                break;
-        }
+            })
+    }, () => {
     })
     .demandCommand()
     .help()
