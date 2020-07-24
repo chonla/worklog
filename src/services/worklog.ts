@@ -93,6 +93,14 @@ class Worklog {
 
         this.siteService.prune();
     }
+
+    setSiteDefault(site) {
+        if (!this.tryConnect()) {
+            return;
+        }
+
+        this.siteService.setDefault(site);
+    }
 }
 
 export { Worklog }

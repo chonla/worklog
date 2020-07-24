@@ -51,6 +51,33 @@ class SiteService {
         this.db.prepare('DELETE FROM sites WHERE sites.name NOT IN (SELECT DISTINCT site_name FROM visits)').run();
         logger.log(`${siteToBePrunedCount.count} site(s) have been pruned.`);
     }
+
+    getDefault() {
+        return this.db.prepare('SELECT * FROM sites WHERE is_default = 1').get();
+    }
+
+    setDefault(site) {
+        if (!this.has(site)) {
+            logger.log(`Site ${site} does not exist in log book.`);
+            return false;
+        }
+
+        const defaultSite = this.getDefault();
+        if (defaultSite && defaultSite.name === site) {
+            logger.log(`Site ${site} has already been set to default site.`);
+            return false;
+        }
+
+        const tx = this.db.transaction(() => {
+            if (defaultSite) {
+                this.db.prepare('UPDATE sites SET is_default = 0 WHERE name = ?').run(defaultSite.name);
+            }
+            this.db.prepare('UPDATE sites SET is_default = 1 WHERE name = ?').run(site);
+            logger.log(`Site ${site} has been set to default site.`);
+        });
+        tx();
+        return true;
+    }
 }
 
 export { SiteService }

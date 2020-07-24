@@ -27,6 +27,12 @@ yargs
                     worklog.removeSite(siteName);
                 }
                 break;
+            case 'default':
+                {
+                    const siteName = argv.arguments[0];
+                    worklog.setSiteDefault(siteName);
+                }
+                break;
             case 'prune':
                 worklog.pruneSites();
                 break;
