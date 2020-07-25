@@ -34,7 +34,7 @@ yargs
         const logMonth = argv.now?'now':(argv.prev?'prev':argv.month);
         worklog.log(logMonth);
     })
-    .command(['report [options]', 'summarize'], 'Summarize worklog report for given month.', (yargs) => {
+    .command(['stats [options]'], 'Show worklog stats for given month.', (yargs) => {
         yargs
             .option('when', {
                 alias: 'm',
