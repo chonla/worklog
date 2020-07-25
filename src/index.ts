@@ -31,13 +31,13 @@ yargs
                 default: 'now'
             })
     }, (argv) => {
-        const logMonth = argv.now?'now':(argv.prev?'prev':argv.month);
+        const logMonth = argv.now ? 'now' : (argv.prev ? 'prev' : argv.month);
         worklog.log(logMonth);
     })
     .command(['stats [options]'], 'Show worklog stats for given month.', (yargs) => {
         yargs
             .option('when', {
-                alias: 'm',
+                alias: 'w',
                 description: 'Time (month) in YYYY-MM format. "now" and "prev" are also supported.',
                 type: 'string',
                 default: 'now'
@@ -48,8 +48,17 @@ yargs
     })
     .command(['checkin [site] [options]', 'in'], 'Check-in manipulation.', (yargs) => {
         yargs
+            .positional('site', {
+                type: 'string'
+            })
+            .option('message', {
+                alias: 'm',
+                description: 'Check-in message.',
+                type: 'string',
+                default: ''
+            })
             .option('when', {
-                alias: '-w',
+                alias: 'w',
                 description: 'Time (date) in YYYY-MM-DD format. "today" and "yesterday" are also supported.',
                 type: 'string',
                 default: 'today'
@@ -61,28 +70,44 @@ yargs
                 default: false
             })
             .option('amend', {
-                alias: '-a',
+                alias: 'a',
                 description: 'Modify previous visit if exists.',
                 type: 'boolean',
                 default: false
             });
     }, (argv) => {
-        const visitDate = argv.when;
-        const visitProportion = argv.half?0.5:1.0;
-        worklog.checkin(argv.site, visitDate, visitProportion, argv.amend);
+        const visitDate = String(argv.when);
+        const visitProportion = argv.half ? 0.5 : 1.0;
+        const site = argv.site ? String(argv.site) : '';
+        worklog.checkin(site, visitDate, visitProportion, String(argv.message), Boolean(argv.amend));
     })
     .command(['site <command> [arguments...]'], 'Site manipulation', (yargs) => {
         yargs
             .command(['ls'], 'List all sites.', {}, () => {
                 worklog.listSites();
             })
-            .command(['add <site>'], 'Add a site.', {}, (argv) => {
+            .command(['add <site>'], 'Add a site.', (yargs) => {
+                yargs
+                    .positional('site', {
+                        type: 'string'
+                    });
+            }, (argv) => {
                 worklog.addSite(argv.site);
             })
-            .command(['rm <site>'], 'Remove a site.', {}, (argv) => {
+            .command(['rm <site>', 'remove'], 'Remove a site.', (yargs) => {
+                yargs
+                    .positional('site', {
+                        type: 'string'
+                    });
+            }, (argv) => {
                 worklog.removeSite(argv.site);
             })
-            .command(['default <site>'], 'Set a default site.', {}, (argv) => {
+            .command(['default <site>'], 'Set a default site.', (yargs) => {
+                yargs
+                    .positional('site', {
+                        type: 'string'
+                    });
+            }, (argv) => {
                 worklog.setSiteDefault(argv.site);
             })
             .command(['prune'], 'Prune orphan sites.', {}, () => {

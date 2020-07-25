@@ -13,21 +13,28 @@ class CheckinService {
         return visit.count > 0;
     }
 
-    in(site: string, visitDate: string, timeProportion: number, amend: boolean) {
+    in(site: string, visitDate: string, timeProportion: number, message: string, amend: boolean) {
+        const siteService = new SiteService(this.db);
+
         if (!site) {
-            const siteService = new SiteService(this.db);
             const defaultSite = siteService.getDefault();
 
             if (!defaultSite) {
-                logger.log('There is no default site defined. Use `worklog site default <siteName>` to define one.');
+                logger.log('!There is no default site defined. Use `worklog site default <siteName>` to define one.!');
                 return false;
             }
 
             site = defaultSite.name;
+            logger.log(`Use \`${site}\` as a default site.`);
+        }
+
+        if (!siteService.has(site)) {
+            logger.log(`!Site \`${site}\` does not exist. Use \`worklog site add <siteName>\` to add one.!`);
+            return false;
         }
 
         if (this.visited(site, visitDate) && !amend) {
-            logger.log(`You have visited ${site} on ${visitDate}. Use option \`--amend\` to modify.`);
+            logger.log(`You have visited \`${site}\` on \`${visitDate}\`. Use option \`--amend\` to modify.`);
             return false;
         }
 
@@ -38,14 +45,14 @@ class CheckinService {
             if (amend) {
                 this.db.prepare('DELETE FROM visits WHERE site_name = ? AND visit_date = ?').run(site, visitDate);
             }
-            this.db.prepare('INSERT INTO visits (site_name, visit_date, visit_month, time_proportion) VALUES (?, ?, ?, ?)').run(site, visitDate, visitMonth, timeProportion);
+            this.db.prepare('INSERT INTO visits (site_name, visit_date, visit_month, time_proportion, note) VALUES (?, ?, ?, ?, ?)').run(site, visitDate, visitMonth, timeProportion, message);
         });
         tx();
 
         if (visitDate === today) {
-            logger.log(`Check-in to ${site} successfully.`);
+            logger.log(`Check-in to \`${site}\` successfully.`);
         } else {
-            logger.log(`Check-in to ${site} for ${visitDate} successfully.`);
+            logger.log(`Check-in to \`${site}\` for \`${visitDate}\` successfully.`);
         }
         return true;
     }

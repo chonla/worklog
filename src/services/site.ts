@@ -16,7 +16,7 @@ class SiteService {
 
     add(site) {
         if (this.has(site)) {
-            logger.log(`Site ${site} is already existing in log book.`);
+            logger.log(`Site \`${site}\` is already existing in log book.`);
             return false;
         }
 
@@ -29,9 +29,9 @@ class SiteService {
         this.db.prepare('INSERT INTO sites (name, is_default) VALUES (?, ?)').run(site, isDefaultSite);
 
         if (isDefaultSite) {
-            logger.log(`Site ${site} has been added and set as a default site.`);
+            logger.log(`Site \`${site}\` has been added and set as a default site.`);
         } else {
-            logger.log(`Site ${site} has been added.`);
+            logger.log(`Site \`${site}\` has been added.`);
         }
     }
 
@@ -43,7 +43,7 @@ class SiteService {
 
         this.db.prepare('DELETE FROM sites WHERE name = ?').run(site);
 
-        logger.log(`Site ${site} has been removed.`);
+        logger.log(`Site \`${site}\` has been removed.`);
     }
 
     list() {
@@ -62,13 +62,13 @@ class SiteService {
 
     setDefault(site) {
         if (!this.has(site)) {
-            logger.log(`Site ${site} does not exist in log book.`);
+            logger.log(`!Site \`${site}\` does not exist in log book.!`);
             return false;
         }
 
         const defaultSite = this.getDefault();
         if (defaultSite && defaultSite.name === site) {
-            logger.log(`Site ${site} has already been set to default site.`);
+            logger.log(`Site \`${site}\` has already been set to default site.`);
             return false;
         }
 
@@ -77,7 +77,7 @@ class SiteService {
                 this.db.prepare('UPDATE sites SET is_default = 0 WHERE name = ?').run(defaultSite.name);
             }
             this.db.prepare('UPDATE sites SET is_default = 1 WHERE name = ?').run(site);
-            logger.log(`Site ${site} has been set to default site.`);
+            logger.log(`Site \`${site}\` has been set to default site.`);
         });
         tx();
         return true;

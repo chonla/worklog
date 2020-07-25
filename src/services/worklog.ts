@@ -33,7 +33,7 @@ class Worklog {
             this.monthResolverService = new MonthResolverService();
             return true;
         }
-        logger.log('Log book has not been found. Use `worklog init` to initialize log book.');
+        logger.log('!Log book has not been found. Use `worklog init` to initialize log book.!');
         return false;
     }
 
@@ -52,7 +52,7 @@ class Worklog {
             if (migration.dispatch()) {
                 logger.log('Log book has been initialized in worklog home.');
             } else {
-                logger.log('Cannot initialize log book.');
+                logger.log('!Cannot initialize log book.!');
             }
         } else {
             logger.log('No updated structure to worklog.');
@@ -61,6 +61,9 @@ class Worklog {
 
     reinit() {
         if (fs.existsSync(this.dbFile)) {
+            if (this.db) {
+                this.db.close();
+            }
             fs.unlinkSync(this.dbFile);
             logger.log('Log book has been purged.');
         }
@@ -75,7 +78,7 @@ class Worklog {
 
         const sites = this.siteService.list();
         sites.forEach(site => {
-            const defaultMark = site.is_default ? '*' : ' ';
+            const defaultMark = site.is_default ? '`*`' : ' ';
             logger.log(`${defaultMark} ${site.name}`);
         });
     }
@@ -112,14 +115,14 @@ class Worklog {
         this.siteService.setDefault(site);
     }
 
-    checkin(site, visitDate, timeProportion, amend) {
+    checkin(site: string, visitDate: string, timeProportion: number, message: string, amend: boolean) {
         if (!this.tryConnect()) {
             return;
         }
 
         visitDate = this.dateResolverService.resolve(visitDate);
 
-        this.checkinService.in(site, visitDate, timeProportion, amend);
+        this.checkinService.in(site, visitDate, timeProportion, message, amend);
     }
 
     log(logMonth) {
@@ -134,10 +137,11 @@ class Worklog {
         if (visits.length > 0) {
             visits.forEach(visit => {
                 const timeSpent = (visit.time_proportion == 1.0) ? 'FULL' : 'HALF';
-                logger.log(`${visit.visit_date} (${timeSpent}): ${visit.site_name}`);
+                const message = (visit.note.length > 0)?` - ${visit.note}`:'';
+                logger.log(`${visit.visit_date} (${timeSpent}): ${visit.site_name}${message}`);
             });
         } else {
-            logger.log(`You have not visited any site on ${logMonth}.`);
+            logger.log(`!You have not visited any site on ${logMonth}.!`);
         }
     }
 
@@ -156,20 +160,20 @@ class Worklog {
         const reportByMonth = this.generateReport(visitsByMonth);
         const reportBySalaryMonth = this.generateReport(visitsBySalaryMonth);
 
-        logger.log(`Month: ${reportMonth}`);
-        logger.log(`Total visit(s): ${reportByMonth.total}`);
+        logger.log(`Month: \`${reportMonth}\``);
+        logger.log(`Total visit(s): \`${reportByMonth.total}\``);
 
         Object.keys(reportByMonth.sites).forEach(key => {
-            logger.log(`${key}: ${reportByMonth.sites[key]}`);
+            logger.log(`${key}: \`${reportByMonth.sites[key]}\``);
         });
 
         logger.log('');
 
-        logger.log(`From ${salaryMonthFrom} to ${salaryMonthTo}`);
-        logger.log(`Total visit(s): ${reportBySalaryMonth.total}`);
+        logger.log(`From \`${salaryMonthFrom}\` to \`${salaryMonthTo}\``);
+        logger.log(`Total visit(s): \`${reportBySalaryMonth.total}\``);
 
         Object.keys(reportBySalaryMonth.sites).forEach(key => {
-            logger.log(`${key}: ${reportBySalaryMonth.sites[key]}`);
+            logger.log(`${key}: \`${reportBySalaryMonth.sites[key]}\``);
         });
     }
 

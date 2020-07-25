@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS visits (
     visit_date CHAR(10),
     visit_month CHAR(7),
     site_name VARCHAR(50),
-    time_proportion NUMERIC
+    time_proportion NUMERIC,
+    note TEXT
 );
 
 CREATE INDEX IF NOT EXISTS site_visit_idx ON visits (
